@@ -88,7 +88,7 @@ class TelegramClientService:
         """Resolve a public username or link into a Telethon entity or None."""
 
         client = await self._get_client()
-        prepared_target = self._prepare_target(target)
+        prepared_target = self.prepare_source_target(target)
 
         try:
             return await client.get_entity(prepared_target)
@@ -155,6 +155,27 @@ class TelegramClientService:
             return f"@{username}"
 
         return None
+
+    def build_entity_reference(self, entity: Any, fallback: str | None = None) -> str | None:
+        """Return a public t.me reference for a resolved entity when possible."""
+
+        username = getattr(entity, "username", None)
+        if username:
+            return f"https://t.me/{username}"
+
+        if not fallback:
+            return None
+
+        prepared_target = self.prepare_source_target(fallback)
+        if not prepared_target:
+            return None
+
+        return f"https://t.me/{prepared_target}"
+
+    def prepare_source_target(self, target: str) -> str:
+        """Normalize a configured public source into a Telegram target name."""
+
+        return self._prepare_target(target)
 
     async def _get_client(self) -> TelegramClient:
         if self._client is None or not self._client.is_connected():

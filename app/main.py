@@ -34,7 +34,10 @@ async def main() -> None:
 
     analyzer = TelegramAnalyzer(
         normalizer=InputNormalizer(),
-        collector=PublicTelegramCollector(telegram_client=telegram_client),
+        collector=PublicTelegramCollector(
+            telegram_client=telegram_client,
+            public_phone_sources=settings.tg_public_phone_sources,
+        ),
         extractor=TextArtifactExtractor(),
     )
     formatter = ResultFormatter()
